@@ -8,6 +8,8 @@
 
 [各类cheatsheets](https://devhints.io/)
 
+[Emmet cheatsheet](https://docs.emmet.io/cheat-sheet/)
+
 #### JavaScript常用库
 
 [常用验证JS库](https://github.com/imbrn/v8n)
