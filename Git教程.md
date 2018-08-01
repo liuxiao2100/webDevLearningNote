@@ -99,6 +99,7 @@ Receiving objects: 100% (3/3), done.
 ```
 3. 要克隆一个仓库，首先必须知道仓库的地址，然后使用`git clone`命令克隆。
 Git支持多种协议，包括`https`，但通过ssh支持的原生git协议速度最快。
+
 #### 分支管理
 * 因为创建、合并和删除分支非常快，所以Git鼓励你使用分支完成某个任务，合并后再删掉分支，这和直接在master分支上工作效果是一样的，但过程更安全。
 * 常用命令：
@@ -114,9 +115,105 @@ Git支持多种协议，包括`https`，但通过ssh支持的原生git协议速�
   合并某分支到当前分支：`git merge <name>`
 
   删除分支：`git branch -d <name>`
-* 解决冲突：如果分支和master分支同时有修改内容，需要先解决冲突(只修改master分支，删除掉分支)。解决冲突后再提交，合并完成。解决冲突就是把Git合并失败的文件手动编辑为我们希望的内容，再提交。用`git log --graph`命令可以看到分支合并图。
+* 解决冲突：
+  * 如果分支和master分支同时有修改内容，需要先解决冲突(只修改master分支，删除掉分支)。解决冲突后再提交，合并完成。
+  * 解决冲突就是把Git合并失败的文件手动编辑为我们希望的内容，再提交。用`git log --graph`命令可以看到分支合并图。
 * 分支策略：在实际开发中，我们应该按照几个基本原则进行分支管理：
   * 首先，master分支应该是非常稳定的，也就是仅用来发布新版本，平时不能在上面干活；
   * 那在哪干活呢？干活都在dev分支上，也就是说，dev分支是不稳定的，到某个时候，比如1.0版本发布时，再把dev分支合并到master上，在master分支发布1.0版本；
   * 你和你的小伙伴们每个人都在dev分支上干活，每个人都有自己的分支，时不时地往dev分支上合并就可以了
   * 合并分支时，加上`--no-ff`参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并，而`fast forward`合并就看不出来曾经做过合并。
+* Bug分支：
+  * 修复bug时，我们会通过创建新的bug分支进行修复，然后合并(与dev分支进行合并)，最后删除；
+  * 当手头工作没有完成时，先把工作现场`git stash`一下，然后去修复bug，修复后，再`git stash pop`，回到工作现场。
+* Feature分支：
+ * 开发一个新feature，最好新建一个分支；
+ * 如果要丢弃一个没有被合并过的分支，可以通过`git branch -D <name>`强行删除
+* 多人协作：
+  * 推送分支：把该分支上的所有本地提交推送到远程库。推送时，要指定本地分支，这样，Git就会把该分支推送到远程库对应的远程分支上：
+  ```
+  $ git push origin master
+  ```
+  如果要推送其他分支，比如dev，就改成：
+  ```
+  $ git push origin dev
+  ```
+  * 在Git中，分支完全可以在本地自己藏着玩，是否推送，视你的心情而定！
+  * 多人协作的工作模式通常是这样：
+    1. 首先，可以试图用`git push origin <branch-name>`推送自己的修改；
+    2. 如果推送失败，则因为远程分支比你的本地更新，需要先用`git pull`试图合并；
+    3. 如果合并有冲突，则解决冲突，并在本地提交;
+    4. 没有冲突或者解决掉冲突后，再用`git push origin <branch-name>`推送就能成功！
+    5. 如果`git pull`提示`no tracking information`，则说明本地分支和远程分支的链接关系没有创建，用命令`git branch --set-upstream-to=origin/<branch-name> <branch-name>`。这就是多人协作的工作模式，一旦熟悉了，就非常简单。
+  * 相关命令：
+
+    查看远程库信息，使用`git remote -v`；
+
+    本地新建的分支如果不推送到远程，对其他人就是不可见的；
+
+    从本地推送分支，使用`git push origin branch-name`，如果推送失败，先用`git pull`抓取远程的新提交；
+
+    在本地创建和远程分支对应的分支，使用`git checkout -b branch-name origin/branch-name`，本地和远程分支的名称最好一致；
+
+    建立本地分支和远程分支的关联，使用`git branch --set-upstream=origin/branch-name branch-name `；
+
+    从远程抓取分支，使用`git pull`，如果有冲突，要先处理冲突。
+  * Rebase:
+    * rebase操作可以把本地未push的分叉提交历史整理成直线；
+    * rebase的目的是使得我们在查看历史提交的变化时更容易，因为分叉的提交需要三方对比。
+
+#### 标签管理
+* 标签也是版本库的一个快照
+* tag就是一个让人容易记住的有意义的名字，它跟某个commit绑在一起
+
+##### 创建标签
+* 命令`git tag <tagname>`用于新建一个标签，默认为HEAD，也可以指定一个commit id；
+* 命令`git tag -a <tagname> -m "blablabla..."`可以指定标签信息；
+* 命令`git tag`可以查看所有标签。
+
+##### 操作标签
+* 命令`git push origin <tagname>`可以推送一个本地标签；
+* 命令`git push origin --tags`可以推送全部未推送过的本地标签；
+* 命令`git tag -d <tagname>`可以删除一个本地标签；
+* 命令`git push origin :refs/tags/<tagname>`可以删除一个远程标签。
+
+#### 使用GitHub
+* 使用GitHub做免费的远程仓库
+* 参与到一个开源项目的方法：
+  1. 浏览器进入项目主页，点“Fork”就在自己的账号下克隆了一个仓库；
+  2. 从自己的账号下clone：
+  ```
+  git clone git@github.com:michaelliao/bootstrap.git
+  ```
+  3. 如果你想修复bootstrap的一个bug，或者新增一个功能，立刻就可以开始干活，干完后，往自己的仓库推送。
+  4. 如果你希望bootstrap的官方库能接受你的修改，你就可以在GitHub上发起一个pull request。当然，对方是否接受你的pull request就不一定了。
+
+#### 自定义Git
+##### 忽略特殊文件
+
+在Git工作区的根目录下创建一个特殊的`.gitignore`文件，然后把要忽略的文件名填进去，Git就会自动忽略这些文件。
+
+`.gitignore`文件本身要放到版本库里，并且可以对`.gitignore`做版本管理！
+
+##### Git配置别名
+
+给Git配置好别名，就可以输入命令时偷个懒。请参考原文。
+
+##### 搭建Git服务器
+
+对于某些视源代码如生命的商业公司来说，既不想公开源代码，又舍不得给GitHub交保护费，那就只能自己搭建一台Git服务器作为私有仓库使用。
+
+搭建Git服务器需要准备一台运行Linux的机器，强烈推荐用Ubuntu或Debian，这样，通过几条简单的`apt`命令就可以完成安装。
+
+步骤：
+
+  1. 安装git：
+    ```
+    $ sudo apt-get install git
+    ```
+  2. 创建一个git用户，用来运行git服务：
+    ```
+    $ sudo adduser git
+    ```
+  3. 创建证书登录:
+    收集所有需要登录的用户的公钥，就是他们自己的`id_rsa.pub`文件，把所有公钥导入到`/home/git/.ssh/authorized_keys`文件里，一行一个。
