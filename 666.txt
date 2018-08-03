@@ -1,0 +1,152 @@
+微信小程序开发的坑：
+1. app.json中不能注释
+
+temp：
+姓名：王珂
+身份证：445202197610113435
+手机号码：13112122870
+
+
+很散很散的点：
+1. 自定义页面标题：
+在.json中添加
+{
+  "navigationBarTitleText": "个人中心"
+}
+
+2. 获取用户头像和昵称：
+<open-data type="userAvatarUrl"></open-data>
+<open-data type="userNickName" lang="zh_CN"></open-data> 
+
+3. 提交表单返回成功后自动清空表单的值：
+https://blog.csdn.net/qq_35713752/article/details/78693177
+
+思路：给每一个input绑定相同的value对象,提交成功后把这个对象赋值为空
+
+代码：
+
+CSS:
+      <form bindsubmit='formsubmit'>
+        <view>
+          <span>* </span>公司名称:</view>
+        <input name="" placeholder="请输入您公司的名称" value='{{form_info}}'></input>
+ 
+        <view>
+          <span>* </span>联系人:</view>
+        <input name="" placeholder="请输入您的姓名" value='{{form_info}}'></input>
+ 
+        <button bindtap="sendMessage" formType="submit">提交信息</button>
+      </form>
+JS:
+  formsubmit:function(e){
+    var that = this;
+    var formData = e.detail.value;
+    wx.request({
+      url: util.apiUrl + 'Index/formsubmit?program_id=' + app.jtappid,
+      data: formData,
+      header: { 'Content-Type': 'application/json' },
+      success: function (res) {
+        if(res.data.statu == 1){
+          wx.showToast({
+            title: '提交成功',
+          })
+          that.setData({
+            form_info: ''
+          })
+        }
+      }
+    })
+  },
+
+4. 手机、身份证正则表达式
+https://www.cnblogs.com/huhl/p/4103189.html
+
+代码：
+身份证正则：
+//身份证正则表达式(15位)
+isIDCard1=/^[1-9]d{7}((0d)|(1[0-2]))(([0|1|2]d)|3[0-1])d{3}$/;
+//身份证正则表达式(18位)
+isIDCard2=/^[1-9]d{5}[1-9]d{3}((0d)|(1[0-2]))(([0|1|2]d)|3[0-1])d{4}$/;
+身份证正则合并：(^d{15}$)|(^d{17}([0-9]|X)$)
+手机号码正则：
+var tel = $("#telNo").val(); //获取手机号
+var telReg = !!tel.match(/^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/);
+//如果手机号码不能通过验证
+if(telReg == false){
+  
+}
+其他：
+提取信息中的网络链接:(h|H)(r|R)(e|E)(f|F) *= *('|")?(w|\|/|.)+('|"| *|>)?
+提取信息中的邮件地址:w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*
+提取信息中的图片链接:(s|S)(r|R)(c|C) *= *('|")?(w|\|/|.)+('|"| *|>)?
+提取信息中的IP地址:(d+).(d+).(d+).(d+)
+提取信息中的中国手机号码:(86)*0*13d{9}
+提取信息中的中国固定电话号码:((d{3,4})|d{3,4}-|s)?d{8}
+提取信息中的中国电话号码（包括移动和固定电话）:((d{3,4})|d{3,4}-|s)?d{7,14}
+提取信息中的中国邮政编码:[1-9]{1}(d+){5}
+提取信息中的中国身份证号码:d{18}|d{15}
+提取信息中的整数：d+
+提取信息中的浮点数（即小数）：(-?d*).?d+
+提取信息中的任何数字 ：(-?d*)(.d+)?
+提取信息中的中文字符串：[u4e00-u9fa5]*
+提取信息中的双字节字符串 (汉字)：[^x00-xff]*
+
+【3】. 小程序评分：
+https://blog.csdn.net/qq_35713752/article/details/78770260
+
+【4】. 搜索功能：
+https://blog.csdn.net/qq_35713752/article/details/78652784
+
+【5】. 自定义组件：
+https://blog.csdn.net/qq_35713752/article/details/78523239
+
+【6】. 打电话功能：
+https://blog.csdn.net/qq_35713752/article/details/78271139
+
+【7】. 封装网络请求：
+https://blog.csdn.net/qq_35713752/article/details/78109084
+
+【8】. 开发常用CSS：
+https://blog.csdn.net/qq_35713752/article/details/78044154
+
+【9】. 客服功能：
+https://blog.csdn.net/u011618035/article/details/80042313
+https://blog.csdn.net/u012421719/article/details/59117600
+https://blog.csdn.net/qq_35713752/article/details/77980177
+
+
+【11】. 导航
+微信小程序限制当前位置和目的地的距离：
+https://blog.csdn.net/qq_35713752/article/details/80515537
+地图：
+https://blog.csdn.net/qq_35713752/article/details/80077268
+地图导航功能：
+https://blog.csdn.net/qq_35713752/article/details/79141034
+
+【12】. 模块化开发
+https://blog.csdn.net/qq_35713752/article/details/80346898
+
+【13】. flex
+https://www.cnblogs.com/wxapp-union/p/6138830.html
+https://segmentfault.com/a/1190000006559564
+http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html
+https://zhuanlan.zhihu.com/p/27074153
+https://zhuanlan.zhihu.com/p/25984121
+
+
+【14】. form表单
+https://www.cnblogs.com/JinQing/p/6693907.html
+https://blog.csdn.net/w10322331/article/details/80348848
+
+链接：
+http://es6.ruanyifeng.com/
+https://zhidao.baidu.com/question/1832147879885302500.html
+https://wangdoc.com/javascript/index.html
+https://docs.microsoft.com/zh-cn/dotnet/csharp/programming-guide/index
+http://www.cnblogs.com/artech/
+https://zhuanlan.zhihu.com/p/29128768
+https://gitee.com/
+
+
+
+
